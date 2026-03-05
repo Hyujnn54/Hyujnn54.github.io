@@ -1,71 +1,118 @@
 /* ============================================
-   PARTICLE BACKGROUND
+   3D LOW-POLY WIREFRAME BACKGROUND
    ============================================ */
 (function () {
   const canvas = document.getElementById('bg-canvas');
-  const ctx = canvas.getContext('2d');
-  let W, H, stars = [];
+  const ctx    = canvas.getContext('2d');
+  let W, H;
+  const mouse = { x: 0.5, y: 0.5 };
 
-  function resize() {
-    W = canvas.width  = window.innerWidth;
-    H = canvas.height = window.innerHeight;
-  }
-
-  function createStars(n = 70) {
-    stars = [];
-    for (let i = 0; i < n; i++) {
-      stars.push({
-        x: Math.random() * W,
-        y: Math.random() * H,
-        r: Math.random() * 1.5 + 0.3,
-        vx: (Math.random() - 0.5) * 0.15,
-        vy: (Math.random() - 0.5) * 0.15,
-        alpha: Math.random() * 0.6 + 0.2
-      });
+  /* ---- Geometry helpers ---- */
+  function edgesFor(verts, tol) {
+    const edges = [];
+    for (let i = 0; i < verts.length; i++) {
+      for (let j = i + 1; j < verts.length; j++) {
+        const dx = verts[i][0]-verts[j][0], dy = verts[i][1]-verts[j][1], dz = verts[i][2]-verts[j][2];
+        if (Math.abs(Math.sqrt(dx*dx+dy*dy+dz*dz) - tol) < tol * 0.06) edges.push([i,j]);
+      }
     }
+    return edges;
   }
 
-  function drawStars() {
-    ctx.clearRect(0, 0, W, H);
-    stars.forEach(s => {
-      ctx.beginPath();
-      ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(88,166,255,${s.alpha})`;
-      ctx.fill();
+  const φ = (1 + Math.sqrt(5)) / 2;
+  const ICO_V = [[0,1,φ],[0,-1,φ],[0,1,-φ],[0,-1,-φ],[1,φ,0],[-1,φ,0],[1,-φ,0],[-1,-φ,0],[φ,0,1],[-φ,0,1],[φ,0,-1],[-φ,0,-1]];
+  const OCT_V = [[1,0,0],[-1,0,0],[0,1,0],[0,-1,0],[0,0,1],[0,0,-1]];
+  const TET_V = [[1,1,1],[1,-1,-1],[-1,1,-1],[-1,-1,1]];
+
+  const GEO = {
+    ico: { v: ICO_V, edges: edgesFor(ICO_V, 2) },
+    oct: { v: OCT_V, edges: edgesFor(OCT_V, Math.SQRT2) },
+    tet: { v: TET_V, edges: edgesFor(TET_V, 2*Math.SQRT2) }
+  };
+
+  /* ---- 3D rotation ---- */
+  function rx(v, a) { const c=Math.cos(a),s=Math.sin(a); return [v[0], v[1]*c-v[2]*s, v[1]*s+v[2]*c]; }
+  function ry(v, a) { const c=Math.cos(a),s=Math.sin(a); return [v[0]*c+v[2]*s, v[1], -v[0]*s+v[2]*c]; }
+  function rz(v, a) { const c=Math.cos(a),s=Math.sin(a); return [v[0]*c-v[1]*s, v[0]*s+v[1]*c, v[2]]; }
+
+  /* ---- Perspective project ---- */
+  function proj(v, cx, cy) {
+    const fov = 380, z = v[2] + fov;
+    if (z <= 0) return null;
+    return [cx + v[0] * fov / z, cy + v[1] * fov / z];
+  }
+
+  /* ---- Shape instances (cx/cy are fractions of W/H) ---- */
+  const shapes = [
+    { type:'ico', cx:0.12, cy:0.22, sz:90,  arx:0,    ary:0,    arz:0,    drx: 0.004, dry: 0.006, drz: 0.003, a:0.10 },
+    { type:'oct', cx:0.88, cy:0.18, sz:65,  arx:0.5,  ary:0.2,  arz:0,    drx: 0.007, dry:-0.005, drz: 0.002, a:0.12 },
+    { type:'tet', cx:0.78, cy:0.78, sz:75,  arx:1.0,  ary:0.5,  arz:0.3,  drx:-0.005, dry: 0.008, drz: 0.004, a:0.09 },
+    { type:'ico', cx:0.42, cy:0.88, sz:48,  arx:0.3,  ary:1.2,  arz:0,    drx: 0.006, dry:-0.004, drz: 0.005, a:0.07 },
+    { type:'oct', cx:0.22, cy:0.72, sz:55,  arx:0.7,  ary:0,    arz:0.4,  drx:-0.004, dry: 0.007, drz:-0.003, a:0.09 },
+    { type:'tet', cx:0.92, cy:0.55, sz:58,  arx:0,    ary:0.8,  arz:0.6,  drx: 0.003, dry: 0.005, drz:-0.006, a:0.10 },
+  ];
+
+  function drawShape(sh) {
+    const geo = GEO[sh.type];
+    const cx  = sh.cx * W;
+    const cy  = sh.cy * H;
+    // Subtle mouse parallax tilt
+    const mRx = (mouse.y - 0.5) * 0.18;
+    const mRy = (mouse.x - 0.5) * 0.18;
+    const px  = (mouse.x - 0.5) * 22;
+    const py  = (mouse.y - 0.5) * 12;
+
+    const pts = geo.v.map(v => {
+      let p = [v[0]*sh.sz, v[1]*sh.sz, v[2]*sh.sz];
+      p = rx(p, sh.arx + mRx);
+      p = ry(p, sh.ary + mRy);
+      p = rz(p, sh.arz);
+      return proj(p, cx + px, cy + py);
     });
-  }
 
-  function updateStars() {
-    stars.forEach(s => {
-      s.x += s.vx;
-      s.y += s.vy;
-      if (s.x < 0) s.x = W;
-      if (s.x > W) s.x = 0;
-      if (s.y < 0) s.y = H;
-      if (s.y > H) s.y = 0;
+    ctx.beginPath();
+    ctx.strokeStyle = `rgba(255,255,255,${sh.a})`;
+    ctx.lineWidth   = 0.75;
+    geo.edges.forEach(([i, j]) => {
+      if (!pts[i] || !pts[j]) return;
+      ctx.moveTo(pts[i][0], pts[i][1]);
+      ctx.lineTo(pts[j][0], pts[j][1]);
     });
+    ctx.stroke();
+
+    sh.arx += sh.drx;
+    sh.ary += sh.dry;
+    sh.arz += sh.drz;
   }
 
-  let isScrolling = false;
-  let scrollTimer;
+  let isScrolling = false, scrollTimer;
   window.addEventListener('scroll', () => {
     isScrolling = true;
     clearTimeout(scrollTimer);
     scrollTimer = setTimeout(() => { isScrolling = false; }, 150);
   }, { passive: true });
 
+  document.addEventListener('mousemove', e => {
+    mouse.x = e.clientX / window.innerWidth;
+    mouse.y = e.clientY / window.innerHeight;
+  }, { passive: true });
+
   function loop() {
     if (!isScrolling) {
-      drawStars();
-      updateStars();
+      ctx.clearRect(0, 0, W, H);
+      shapes.forEach(drawShape);
     }
     requestAnimationFrame(loop);
   }
 
+  function resize() {
+    W = canvas.width  = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+  }
+
   resize();
-  createStars();
   loop();
-  window.addEventListener('resize', () => { resize(); createStars(); });
+  window.addEventListener('resize', resize);
 })();
 
 /* ============================================
