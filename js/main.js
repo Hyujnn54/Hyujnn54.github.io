@@ -203,44 +203,58 @@
 })();
 
 /* ============================================
-   TYPING ANIMATION
+   TERMINAL TYPEWRITER (K)
    ============================================ */
 (function () {
-  const lines = [
-    'Computer Science Student',
-    'Cloud & Cybersecurity Enthusiast',
-    'Learning Networking & Security',
-    'Building with C, C++, Python, Java',
-    'Always Learning. Always Building.'
+  const body = document.getElementById('terminal-body');
+  if (!body) return;
+
+  const sequence = [
+    { type: 'prompt', text: '$ whoami' },
+    { type: 'output', text: 'Mohamed Ben Moussa (Hyujnn)' },
+    { type: 'prompt', text: '$ cat skills.txt' },
+    { type: 'output', text: 'Cloud \u2601\ufe0f  \u00b7  Cybersecurity \ud83d\udd10  \u00b7  Systems Programming' },
+    { type: 'prompt', text: '$ ls projects/' },
+    { type: 'output', text: 'PPW/  Talent-Bridge/  Shadows-Of-Liberty/' },
+    { type: 'prompt', text: '$ ', pause: true }
   ];
 
-  const el = document.getElementById('typing-text');
-  let lineIdx = 0, charIdx = 0, deleting = false, pause = 0;
+  let caret = document.createElement('span');
+  caret.className = 't-caret';
 
-  function type() {
-    const current = lines[lineIdx];
-
-    if (!deleting && charIdx <= current.length) {
-      el.textContent = current.slice(0, charIdx++);
-      setTimeout(type, 55);
-    } else if (!deleting && charIdx > current.length) {
-      pause++;
-      if (pause < 28) { setTimeout(type, 80); return; }
-      pause = 0;
-      deleting = true;
-      setTimeout(type, 55);
-    } else if (deleting && charIdx >= 0) {
-      el.textContent = current.slice(0, charIdx--);
-      setTimeout(type, 30);
-    } else {
-      deleting = false;
-      lineIdx = (lineIdx + 1) % lines.length;
-      charIdx = 0;
-      setTimeout(type, 400);
-    }
+  function typeLine(text, cls, cb) {
+    const span = document.createElement('span');
+    span.className = 't-line ' + cls;
+    span.textContent = '';
+    span.appendChild(caret);
+    body.appendChild(span);
+    let i = 0;
+    const iv = setInterval(() => {
+      span.textContent = text.slice(0, ++i);
+      span.appendChild(caret);
+      if (i >= text.length) { clearInterval(iv); cb && cb(); }
+    }, cls === 't-prompt' ? 55 : 22);
   }
 
-  type();
+  function run(idx) {
+    if (idx >= sequence.length) return;
+    const step = sequence[idx];
+    const cls  = step.type === 'prompt' ? 't-prompt' : 't-output';
+    if (step.pause) {
+      const span = document.createElement('span');
+      span.className = 't-line t-prompt';
+      span.textContent = step.text;
+      span.appendChild(caret);
+      body.appendChild(span);
+      return;
+    }
+    const delay = step.type === 'output' ? 60 : 350;
+    setTimeout(() => typeLine(step.text, cls, () => {
+      setTimeout(() => run(idx + 1), step.type === 'output' ? 180 : 380);
+    }), delay);
+  }
+
+  setTimeout(() => run(0), 700);
 })();
 
 /* ============================================
@@ -712,4 +726,80 @@
   }, { rootMargin: '-40% 0px -55% 0px' });
 
   sections.forEach(s => io.observe(s));
+})();
+/* ============================================
+   CURSOR TRAIL SPARKS (F)
+   ============================================ */
+(function () {
+  if (window.matchMedia('(pointer: coarse)').matches) return;
+  const cvs = document.createElement('canvas');
+  cvs.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:9997;';
+  document.body.appendChild(cvs);
+  const ctx = cvs.getContext('2d');
+  function resize() { cvs.width = window.innerWidth; cvs.height = window.innerHeight; }
+  resize();
+  window.addEventListener('resize', resize);
+
+  const particles = [];
+  let lx = 0, ly = 0;
+
+  document.addEventListener('mousemove', e => {
+    const dx = e.clientX - lx, dy = e.clientY - ly;
+    const spd = Math.sqrt(dx * dx + dy * dy);
+    if (spd > 4) {
+      const n = Math.min(4, Math.ceil(spd / 12));
+      for (let i = 0; i < n; i++) {
+        particles.push({
+          x: e.clientX + (Math.random() - 0.5) * 6,
+          y: e.clientY + (Math.random() - 0.5) * 6,
+          vx: (Math.random() - 0.5) * 1.5 - dx * 0.04,
+          vy: (Math.random() - 0.5) * 1.5 - dy * 0.04,
+          r: 1.5 + Math.random() * 2,
+          life: 1
+        });
+      }
+    }
+    lx = e.clientX; ly = e.clientY;
+  }, { passive: true });
+
+  function draw() {
+    ctx.clearRect(0, 0, cvs.width, cvs.height);
+    for (let i = particles.length - 1; i >= 0; i--) {
+      const p = particles[i];
+      p.x += p.vx; p.y += p.vy; p.vy += 0.04; p.life -= 0.045;
+      if (p.life <= 0) { particles.splice(i, 1); continue; }
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r * p.life, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(240,240,240,${(p.life * 0.55).toFixed(2)})`;
+      ctx.fill();
+    }
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+/* ============================================
+   REPO CARD TILT (J)
+   ============================================ */
+(function () {
+  if (window.matchMedia('(pointer: coarse)').matches) return;
+  const grid = document.getElementById('repos-grid');
+  if (!grid) return;
+
+  grid.addEventListener('mousemove', e => {
+    const card = e.target.closest('.repo-card');
+    if (!card) return;
+    const r  = card.getBoundingClientRect();
+    const dx = (e.clientX - r.left) / r.width  - 0.5;
+    const dy = (e.clientY - r.top)  / r.height - 0.5;
+    card.style.transform  = `perspective(600px) rotateY(${dx * 10}deg) rotateX(${-dy * 10}deg) scale(1.03)`;
+    card.style.transition = 'transform 0.08s linear';
+  });
+
+  grid.addEventListener('mouseout', e => {
+    const card = e.target.closest('.repo-card');
+    if (!card || card.contains(e.relatedTarget)) return;
+    card.style.transform  = '';
+    card.style.transition = 'transform 0.55s cubic-bezier(0.23,1,0.32,1)';
+  });
 })();

@@ -6,7 +6,7 @@
   <title>Hyujnn | Portfolio</title>
   <meta name="description" content="Computer Science Student | Cloud & Cybersecurity Enthusiast" />
   <link rel="icon" href="https://avatars.githubusercontent.com/u/140203430?v=4" />
-  <link rel="stylesheet" href="css/style.css?v=19" />
+  <link rel="stylesheet" href="css/style.css?v=20" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
@@ -30,6 +30,8 @@
     </div>
     <ul class="nav-links">
       <li><a href="#about">about</a></li>
+      <li><a href="#journey">journey</a></li>
+      <li><a href="#now">now</a></li>
       <li><a href="#stack">stack</a></li>
       <li><a href="#repos">repos</a></li>
       <li><a href="#contact">contact</a></li>
@@ -48,10 +50,14 @@
       </div>
       <p class="hero-greeting">Hello, World! 👋</p>
       <h1 class="hero-title">I'm <span class="glitch-text" data-text="Hyujnn">Hyujnn</span></h1>
-      <div class="hero-typing-wrap">
-        <span class="typing-prefix">&gt; </span>
-        <span class="typing-text" id="typing-text"></span>
-        <span class="cursor">|</span>
+      <div class="terminal-block">
+        <div class="t-bar">
+          <span class="t-dot t-dot--red"></span>
+          <span class="t-dot t-dot--yellow"></span>
+          <span class="t-dot t-dot--green"></span>
+          <span class="t-title">hyujnn@portfolio:~</span>
+        </div>
+        <div class="terminal-body" id="terminal-body"></div>
       </div>
       <p class="hero-sub">Computer Science student passionate about Cloud Computing &amp; Cybersecurity.<br/>
         Always learning. Always building. <span class="star">⭐</span></p>
@@ -98,10 +104,86 @@
     </div>
   </section>
 
+  <!-- Journey / Timeline Section -->
+  <section class="section" id="journey">
+    <div class="container">
+      <h2 class="section-title"><span class="section-num">02.</span> Journey</h2>
+      <div class="timeline">
+        <div class="tl-item reveal">
+          <div class="tl-dot"></div>
+          <div class="tl-year">2023</div>
+          <div class="tl-content">
+            <h3>Started CS Engineering</h3>
+            <p>Enrolled at ESPRIT in Tunisia, diving deep into Computer Science fundamentals — algorithms, data structures, systems programming in C.</p>
+          </div>
+        </div>
+        <div class="tl-item reveal">
+          <div class="tl-dot"></div>
+          <div class="tl-year">2024</div>
+          <div class="tl-content">
+            <h3>Cloud &amp; Cybersecurity Exploration</h3>
+            <p>Began learning cloud architecture, AWS foundations, network security principles and low-level systems design.</p>
+          </div>
+        </div>
+        <div class="tl-item reveal">
+          <div class="tl-dot"></div>
+          <div class="tl-year">2025</div>
+          <div class="tl-content">
+            <h3>Built PPW — Password Manager</h3>
+            <p>Designed and shipped a personal AES-256-GCM encrypted password vault in Python with cloud sync and a CLI generator.</p>
+          </div>
+        </div>
+        <div class="tl-item reveal">
+          <div class="tl-dot"></div>
+          <div class="tl-year">2025</div>
+          <div class="tl-content">
+            <h3>Talent Bridge — HR Platform</h3>
+            <p>Led development of a full-stack Java HR recruitment platform with JavaFX desktop app and web layer for managing candidates and interviews.</p>
+          </div>
+        </div>
+        <div class="tl-item tl-active reveal">
+          <div class="tl-dot"></div>
+          <div class="tl-year">2026</div>
+          <div class="tl-content">
+            <h3>Deep-Diving Security &amp; Systems</h3>
+            <p>Exploring offensive &amp; defensive security, network protocols, system architecture and open-source contribution.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Currently Building Section -->
+  <section class="section" id="now">
+    <div class="container">
+      <h2 class="section-title"><span class="section-num">03.</span> Currently Building</h2>
+      <div class="now-grid">
+        <div class="now-card reveal">
+          <div class="now-pulse"></div>
+          <div class="now-body">
+            <span class="now-tag">Python</span>
+            <h3>PPW</h3>
+            <p>Personal Password Manager — AES-256-GCM encrypted vault with cloud sync, password generator &amp; browser extension.</p>
+            <a href="https://github.com/Hyujnn54/PPW" target="_blank" rel="noopener" class="btn btn-outline btn--sm">View Repo →</a>
+          </div>
+        </div>
+        <div class="now-card reveal">
+          <div class="now-pulse"></div>
+          <div class="now-body">
+            <span class="now-tag">Java</span>
+            <h3>Talent Bridge</h3>
+            <p>Full-stack HR recruitment platform — JavaFX desktop app + web layer for managing candidates and interviews.</p>
+            <a href="https://github.com/Hyujnn54/Talent-Bridge" target="_blank" rel="noopener" class="btn btn-outline btn--sm">View Repo →</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- Tech Stack Section -->
   <section class="section" id="stack">
     <div class="container">
-      <h2 class="section-title"><span class="section-num">02.</span> Tech Stack</h2>
+      <h2 class="section-title"><span class="section-num">04.</span> Tech Stack</h2>
 
       <div class="stack-group reveal">
         <h3 class="stack-label">💻 Languages</h3>
@@ -140,7 +222,7 @@
   <!-- Repositories Section -->
   <section class="section section-alt" id="repos">
     <div class="container">
-      <h2 class="section-title"><span class="section-num">03.</span> Repositories</h2>
+      <h2 class="section-title"><span class="section-num">05.</span> Repositories</h2>
       <div class="repos-filter reveal">
         <button class="filter-btn active" data-filter="all">All</button>
         <button class="filter-btn" data-filter="Python">Python</button>
@@ -164,7 +246,7 @@
   <!-- Contact Section -->
   <section class="section" id="contact">
     <div class="container">
-      <h2 class="section-title"><span class="section-num">04.</span> Connect With Me</h2>
+      <h2 class="section-title"><span class="section-num">06.</span> Connect With Me</h2>
       <div class="contact-wrap reveal">
         <p class="contact-sub">I'm always open to discuss projects, ideas, or opportunities. Feel free to reach out!</p>
         <div class="contact-links">
@@ -191,6 +273,6 @@
     <p class="footer-sub">⭐ Always learning. Always building.</p>
   </footer>
 
-  <script src="js/main.js?v=19"></script>
+  <script src="js/main.js?v=20"></script>
 </body>
 </html>
