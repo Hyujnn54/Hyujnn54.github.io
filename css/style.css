@@ -204,7 +204,7 @@ img { max-width: 100%; display: block; }
   margin-bottom: 1.5rem;
 }
 .hero-avatar {
-  width: 160px; height: 160px;
+  width: 220px; height: 220px;
   border-radius: 50%;
   border: 3px solid var(--accent);
   box-shadow: var(--glow);
