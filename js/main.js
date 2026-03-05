@@ -171,27 +171,33 @@
   const btns  = document.querySelectorAll('.filter-btn');
   let allRepos = [];
 
-  const LANG_COLORS = {
-    Python: '#3572A5', Java: '#b07219',
-    'C++': '#f34b7d', C: '#555599',
-    JavaScript: '#f1e05a', TypeScript: '#2b7489',
-    HTML: '#e34c26', CSS: '#563d7c'
-  };
+  // Repos to never show (readme-only or portfolio repo itself)
+  const EXCLUDED_REPOS = new Set(['Hyujnn54', 'hyujnn_portfolio']);
 
-  // Extended repo list – includes a pinned Shadows-Of-Liberty external repo
+  // Extra pinned repo (collaboration)
   const FEATURED_EXTRA = [
     {
       name: 'Shadows-Of-Liberty',
       full_name: 'Aziz-BenLamine/Shadows-Of-Liberty',
       html_url: 'https://github.com/Aziz-BenLamine/Shadows-Of-Liberty',
-      description: 'A C game project (pinned collaboration).',
+      description: 'A game built in C — pinned collaboration project.',
       language: 'C',
       stargazers_count: 1,
       forks_count: 1,
-      topics: ['game', 'c'],
+      topics: ['game', 'c', 'collaboration'],
       fork: false
     }
   ];
+
+  // Known screenshots for repos that have images in their README
+  const REPO_SCREENSHOTS = {
+    'Talent-Bridge': [
+      'https://github.com/user-attachments/assets/27363542-e688-4653-9a94-b18ce3a30ffb',
+      'https://github.com/user-attachments/assets/5ab30ff6-408b-42c3-a0fe-d7d9a562e697',
+      'https://github.com/user-attachments/assets/2ebf734a-7314-4aab-9396-d8572c1a466b'
+    ],
+    'PPW': [] // no images in README
+  };
 
   function langClass(lang) {
     const map = { Python:'Python', Java:'Java', C:'C', 'C++':'C', JavaScript:'JavaScript', TypeScript:'TypeScript', HTML:'HTML', CSS:'CSS' };
@@ -209,31 +215,56 @@
     return `${Math.floor(m / 12)}y ago`;
   }
 
+  function buildScreenshots(name) {
+    const shots = REPO_SCREENSHOTS[name];
+    if (!shots || shots.length === 0) return '';
+    return `
+      <div class="repo-screenshots">
+        <div class="repo-screenshots-track" id="track-${name}">
+          ${shots.map((src, i) => `
+            <div class="repo-shot-wrap">
+              <img src="${src}" alt="${name} screenshot ${i + 1}" class="repo-shot" loading="lazy" onclick="openLightbox('${src}', '${name}')" />
+            </div>`).join('')}
+        </div>
+        ${shots.length > 1 ? `
+        <div class="shot-nav">
+          ${shots.map((_, i) => `<button class="shot-dot ${i === 0 ? 'active' : ''}" data-repo="${name}" data-idx="${i}"></button>`).join('')}
+        </div>` : ''}
+      </div>`;
+  }
+
   function buildCard(repo) {
-    const topics = (repo.topics || []).slice(0, 3);
-    const card = document.createElement('div');
-    card.className = 'repo-card reveal';
+    const topics = (repo.topics || []).slice(0, 4);
+    const shots  = buildScreenshots(repo.name);
+    const card   = document.createElement('div');
+    card.className = `repo-card reveal${shots ? ' repo-card-has-shots' : ''}`;
     card.dataset.lang = repo.language || '';
     card.innerHTML = `
-      <div class="repo-icon">
-        <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor">
-          <path d="M2 2.5A2.5 2.5 0 0 1 4.5 0h8.75a.75.75 0 0 1 .75.75v12.5a.75.75 0 0 1-.75.75h-2.5a.75.75 0 0 1 0-1.5h1.75v-2h-8a1 1 0 0 0-.714 1.7.75.75 0 1 1-1.072 1.05A2.495 2.495 0 0 1 2 11.5Zm10.5-1h-8a1 1 0 0 0-1 1v6.708A2.486 2.486 0 0 1 4.5 9h8Z"/>
-        </svg>
-      </div>
-      <a href="${repo.html_url}" target="_blank" rel="noopener" class="repo-name">${repo.name}</a>
-      <p class="repo-desc">${repo.description || 'No description provided.'}</p>
-      ${topics.length ? `<div class="repo-footer" style="gap:.4rem;flex-wrap:wrap;">${topics.map(t => `<span class="repo-topic">${t}</span>`).join('')}</div>` : ''}
-      <div class="repo-footer">
-        ${repo.language ? `<span class="repo-lang"><span class="lang-dot ${langClass(repo.language)}"></span>${repo.language}</span>` : ''}
-        <span class="repo-stat">
-          <svg viewBox="0 0 16 16" width="14" height="14" fill="currentColor"><path d="M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.279l-3.046 2.97.719 4.192a.751.751 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .416-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25Z"/></svg>
-          ${repo.stargazers_count}
-        </span>
-        <span class="repo-stat">
-          <svg viewBox="0 0 16 16" width="14" height="14" fill="currentColor"><path d="M5 5.372v.878c0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75v-.878a2.25 2.25 0 1 1 1.5 0v.878a2.25 2.25 0 0 1-2.25 2.25h-1.5v2.128a2.251 2.251 0 1 1-1.5 0V8.5h-1.5A2.25 2.25 0 0 1 3.5 6.25v-.878a2.25 2.25 0 1 1 1.5 0ZM5 3.25a.75.75 0 1 0-1.5 0 .75.75 0 0 0 1.5 0Zm6.75.75a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm-3 8.75a.75.75 0 1 0-1.5 0 .75.75 0 0 0 1.5 0Z"/></svg>
-          ${repo.forks_count}
-        </span>
-        ${repo.updated_at ? `<span style="margin-left:auto;">${timeAgo(repo.updated_at)}</span>` : ''}
+      ${shots}
+      <div class="repo-body">
+        <div class="repo-header-row">
+          <svg class="repo-icon-svg" viewBox="0 0 16 16" width="15" height="15" fill="currentColor">
+            <path d="M2 2.5A2.5 2.5 0 0 1 4.5 0h8.75a.75.75 0 0 1 .75.75v12.5a.75.75 0 0 1-.75.75h-2.5a.75.75 0 0 1 0-1.5h1.75v-2h-8a1 1 0 0 0-.714 1.7.75.75 0 1 1-1.072 1.05A2.495 2.495 0 0 1 2 11.5Zm10.5-1h-8a1 1 0 0 0-1 1v6.708A2.486 2.486 0 0 1 4.5 9h8Z"/>
+          </svg>
+          <a href="${repo.html_url}" target="_blank" rel="noopener" class="repo-name">${repo.name}</a>
+          <a href="${repo.html_url}" target="_blank" rel="noopener" class="repo-open-btn" title="Open on GitHub">
+            <svg viewBox="0 0 16 16" width="13" height="13" fill="currentColor"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"/></svg>
+          </a>
+        </div>
+        <p class="repo-desc">${repo.description || 'No description provided.'}</p>
+        ${topics.length ? `<div class="repo-topics">${topics.map(t => `<span class="repo-topic">${t}</span>`).join('')}</div>` : ''}
+        <div class="repo-footer">
+          ${repo.language ? `<span class="repo-lang"><span class="lang-dot ${langClass(repo.language)}"></span>${repo.language}</span>` : ''}
+          <span class="repo-stat">
+            <svg viewBox="0 0 16 16" width="13" height="13" fill="currentColor"><path d="M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.279l-3.046 2.97.719 4.192a.751.751 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .416-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25Z"/></svg>
+            ${repo.stargazers_count}
+          </span>
+          <span class="repo-stat">
+            <svg viewBox="0 0 16 16" width="13" height="13" fill="currentColor"><path d="M5 5.372v.878c0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75v-.878a2.25 2.25 0 1 1 1.5 0v.878a2.25 2.25 0 0 1-2.25 2.25h-1.5v2.128a2.251 2.251 0 1 1-1.5 0V8.5h-1.5A2.25 2.25 0 0 1 3.5 6.25v-.878a2.25 2.25 0 1 1 1.5 0ZM5 3.25a.75.75 0 1 0-1.5 0 .75.75 0 0 0 1.5 0Zm6.75.75a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm-3 8.75a.75.75 0 1 0-1.5 0 .75.75 0 0 0 1.5 0Z"/></svg>
+            ${repo.forks_count}
+          </span>
+          ${repo.updated_at ? `<span class="repo-updated">${timeAgo(repo.updated_at)}</span>` : ''}
+        </div>
       </div>`;
     return card;
   }
@@ -249,7 +280,6 @@
       return;
     }
 
-    // Re-observe for reveal animations
     const io = new IntersectionObserver(entries => {
       entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target); } });
     }, { threshold: 0.08 });
@@ -260,6 +290,21 @@
       grid.appendChild(card);
       io.observe(card);
     });
+
+    // Screenshot dot navigation
+    document.querySelectorAll('.shot-dot').forEach(dot => {
+      dot.addEventListener('click', () => {
+        const repo = dot.dataset.repo;
+        const idx  = parseInt(dot.dataset.idx, 10);
+        const track = document.getElementById(`track-${repo}`);
+        if (track) {
+          track.scrollTo({ left: track.offsetWidth * idx, behavior: 'smooth' });
+          document.querySelectorAll(`.shot-dot[data-repo="${repo}"]`).forEach((d, i) => {
+            d.classList.toggle('active', i === idx);
+          });
+        }
+      });
+    });
   }
 
   async function fetchRepos() {
@@ -267,8 +312,7 @@
       const res = await fetch(`https://api.github.com/users/${GITHUB_USER}/repos?sort=updated&per_page=30`);
       if (!res.ok) throw new Error('API error');
       const data = await res.json();
-      // Combine own repos + extra featured, deduplicate
-      const ownRepos = data.filter(r => !r.fork || r.name === 'Hyujnn54');
+      const ownRepos = data.filter(r => !EXCLUDED_REPOS.has(r.name) && !r.fork);
       const names = new Set(ownRepos.map(r => r.name));
       const extras = FEATURED_EXTRA.filter(r => !names.has(r.name));
       allRepos = [...ownRepos, ...extras].sort((a, b) => {
@@ -276,19 +320,16 @@
         const tb = b.updated_at ? new Date(b.updated_at) : new Date(0);
         return tb - ta;
       });
-    } catch (e) {
-      // Fallback to static data if API fails
+    } catch {
       allRepos = [
         { name: 'Talent-Bridge', html_url: 'https://github.com/Hyujnn54/Talent-Bridge', description: 'A Java desktop and web HR application for managing recruitment and interviews.', language: 'Java', stargazers_count: 0, forks_count: 0, topics: ['java','javafx','hr','recruitment'], updated_at: '2026-03-05T11:55:41Z' },
-        { name: 'PPW',           html_url: 'https://github.com/Hyujnn54/PPW',           description: 'Python project.',                                           language: 'Python', stargazers_count: 0, forks_count: 0, topics: ['python'], updated_at: '2026-03-05T19:31:25Z' },
+        { name: 'PPW', html_url: 'https://github.com/Hyujnn54/PPW', description: 'PPW — Personal Password Manager. AES-256-GCM encrypted vault with cloud sync, generator & browser extension.', language: 'Python', stargazers_count: 0, forks_count: 0, topics: ['python','security','passwords'], updated_at: '2026-03-05T19:31:25Z' },
         ...FEATURED_EXTRA
       ];
     }
-
     renderRepos('all');
   }
 
-  // Filter buttons
   btns.forEach(btn => {
     btn.addEventListener('click', () => {
       btns.forEach(b => b.classList.remove('active'));
@@ -298,6 +339,39 @@
   });
 
   fetchRepos();
+})();
+
+/* ============================================
+   LIGHTBOX FOR REPO SCREENSHOTS
+   ============================================ */
+(function () {
+  const overlay = document.createElement('div');
+  overlay.id = 'lightbox';
+  overlay.innerHTML = `
+    <div class="lb-backdrop"></div>
+    <div class="lb-content">
+      <button class="lb-close" aria-label="Close">✕</button>
+      <img class="lb-img" src="" alt="" />
+      <p class="lb-caption"></p>
+    </div>`;
+  document.body.appendChild(overlay);
+
+  window.openLightbox = function (src, name) {
+    overlay.querySelector('.lb-img').src = src;
+    overlay.querySelector('.lb-caption').textContent = name;
+    overlay.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  };
+
+  function closeLb() {
+    overlay.classList.remove('open');
+    document.body.style.overflow = '';
+    overlay.querySelector('.lb-img').src = '';
+  }
+
+  overlay.querySelector('.lb-close').addEventListener('click', closeLb);
+  overlay.querySelector('.lb-backdrop').addEventListener('click', closeLb);
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLb(); });
 })();
 
 /* ============================================

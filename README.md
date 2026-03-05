@@ -1,83 +1,85 @@
-# Hyujnn Portfolio
+# Hyujnn — Portfolio
 
-Personal developer portfolio for **Hyujnn54** — built with vanilla HTML, CSS, and JavaScript. Hosted on GitHub Pages.
-
-## 🚀 Deploy to GitHub Pages (Free)
-
-### Option A — Rename the repo to your GitHub Pages domain
-
-1. Go to **GitHub → Settings → Rename** the repo to `Hyujnn54.github.io`
-2. Go to **Settings → Pages**
-3. Source: **Deploy from a branch** → `main` → `/ (root)`
-4. Your site will be live at: `https://hyujnn54.github.io`
-
-### Option B — Use this repo as-is
-
-1. Go to **Settings → Pages**
-2. Source: **Deploy from a branch** → `main` → `/ (root)`
-3. Your site will be live at: `https://hyujnn54.github.io/hyujnn_portfolio`
+Personal developer portfolio for **Mohamed Ben Moussa** ([@Hyujnn54](https://github.com/Hyujnn54)).
 
 ---
 
-## 🌐 Free Custom Domain Options
+## 👨‍💻 About Me
 
-| Option | Domain format | How to get it | Cost |
-|--------|--------------|---------------|------|
-| **GitHub Pages default** | `hyujnn54.github.io` | Automatic with GitHub Pages | Free forever |
-| **is-a.dev** | `hyujnn54.is-a.dev` | Submit a PR to [is-a-dev/register](https://github.com/is-a-dev/register) | Free |
-| **js.org** | `hyujnn.js.org` | Submit a PR to [js-org/js.org](https://github.com/js-org/js.org) | Free |
-| **Cloudflare Pages** | `hyujnn-portfolio.pages.dev` | Connect GitHub repo at dash.cloudflare.com | Free |
-| **Netlify** | `hyujnn-portfolio.netlify.app` | Connect GitHub repo on netlify.com | Free |
-| **Vercel** | `hyujnn-portfolio.vercel.app` | Connect GitHub repo on vercel.com | Free |
-| **.com / .dev domain** | `hyujnn.dev` | Buy from Namecheap / Porkbun | ~$10–15/yr |
+I'm a Computer Science student passionate about Cloud Computing and Cybersecurity. I spend my time learning how systems work under the hood — networking, security, and architectures — while building real projects to sharpen my skills.
 
-> **Best free custom subdomain**: `is-a.dev` — requires just opening a PR with a JSON file in their repo. Your site becomes `hyujnn54.is-a.dev` pointing to your GitHub Pages.  
-> **Best free hosting alternative**: Cloudflare Pages or Vercel — both have even faster CDN than GitHub Pages and support custom domains for free.
+- 🎓 Computer Science Student at ESPRIT
+- ☁️ Interested in Cloud Computing & Cybersecurity
+- 🧠 Learning Networking, Security, and System Architecture
+- 💻 Programming primarily in C, C++, Python, and Java
+- 🚀 Always working on something new to grow as an engineer
 
 ---
 
-## 🔗 Pointing a Custom Domain to GitHub Pages
+## 🗂️ Featured Projects
 
-Once you have a domain (or subdomain), in your repo:
+### [Talent Bridge](https://github.com/Hyujnn54/Talent-Bridge) — Java · JavaFX · MySQL · Maven
+A full-stack desktop + web HR application for managing the complete recruitment lifecycle. Built as a university Integrated Project (PI) at ESPRIT. Features role-based access control, AI-assisted screening (Grok/Ollama), face recognition login, interview scheduling with Jitsi meet links, analytics dashboards, event management, automated email/SMS notifications, and a browser-based Symfony web phase.
 
-1. Create a file called **`CNAME`** in the root with your domain inside:
-   ```
-   yourdomain.com
-   ```
-2. In your domain registrar's DNS, add:
-   - For **apex domain** (`yourdomain.com`): 4 A records pointing to GitHub's IPs:
-     ```
-     185.199.108.153
-     185.199.109.153
-     185.199.110.153
-     185.199.111.153
-     ```
-   - For **subdomain** (`www.yourdomain.com`): A CNAME record pointing to `hyujnn54.github.io`
+**Tech:** Java 17, JavaFX/FXML, Maven, MySQL 8, Symfony 6 (PHP), Doctrine, AES encryption, REST APIs, Brevo SMTP, SMSMobileAPI
 
 ---
 
-## 📁 Project Structure
+### [PPW](https://github.com/Hyujnn54/PPW) — Python · AES-256 · Cloud Sync
+Personal Password Manager desktop application for Windows. AES-256-GCM encrypted vault — passwords are encrypted on-device before anything touches the cloud. Includes a password generator, security dashboard, auto-lockout after failed attempts, and a browser extension for Chrome, Firefox, and Edge.
+
+**Tech:** Python, AES-256-GCM, pbkdf2 key derivation (100k rounds), cloud backend, Windows installer (NSIS)
+
+---
+
+### [Shadows of Liberty](https://github.com/Aziz-BenLamine/Shadows-Of-Liberty) — C (Collaboration)
+A C game project built in collaboration. Pinned as a featured project.
+
+---
+
+## 🛠️ Tech Stack
+
+**Languages:** C · C++ · Python · Java  
+**Tools:** Git · GitHub · Linux · VS Code · Maven  
+**Interests:** Cloud Computing · Cybersecurity · Networking · System Architecture
+
+---
+
+## 📬 Contact
+
+- **Email:** [mohamed.ben.moussa54123@gmail.com](mailto:mohamed.ben.moussa54123@gmail.com)
+- **GitHub:** [github.com/Hyujnn54](https://github.com/Hyujnn54)
+- **LinkedIn:** [Mohamed Ben Moussa](https://www.linkedin.com/in/mohamed-ben-moussa-303065363/)
+
+---
+
+## 📁 Portfolio Structure
 
 ```
 hyujnn_portfolio/
-├── index.html       # Main portfolio page
+├── index.html       # Main single-page portfolio
 ├── css/
-│   └── style.css    # All styles (dark Tokyo Night theme)
+│   └── style.css    # Dark Tokyo Night theme, fully responsive
 ├── js/
-│   └── main.js      # Particle canvas, typing animation, GitHub API, animations
+│   └── main.js      # Particle canvas, typing animation, GitHub API, lightbox
+├── .nojekyll        # Disables Jekyll processing on GitHub Pages
 └── README.md
 ```
 
-## ✨ Features
+## ✨ Site Features
 
-- **Animated particle canvas** background with connected stars
-- **Typewriter** animation cycling through roles
-- **Live GitHub API** — repo cards fetched in real time with language colors, stars, forks
-- **Filter repos** by language
-- **GitHub stats cards** — stats, top languages, streak, activity graph
-- **Animated snake contribution** graph
-- **GitHub trophies** banner
-- **Badge grid** for tech stack
-- **Reveal on scroll** animations for every section
-- **Mobile responsive** with hamburger menu
-- **Dark Tokyo Night** color theme
+- Animated particle/star canvas background
+- Typewriter animation cycling through roles
+- Live GitHub repository fetch via GitHub API (with fallback)
+- Repo cards with language colors, stars, forks, topic tags
+- **Screenshot carousel** with lightbox zoom for repos with images
+- GitHub stats cards, top languages, contribution streak & activity graph
+- Contribution snake animation
+- GitHub trophies banner
+- Tech stack badge grid
+- Scroll-reveal animations
+- Fully mobile responsive with hamburger menu
+
+---
+
+> ⭐ Always learning. Always building.
