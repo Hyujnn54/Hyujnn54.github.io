@@ -63,9 +63,19 @@
     });
   }
 
+  let isScrolling = false;
+  let scrollTimer;
+  window.addEventListener('scroll', () => {
+    isScrolling = true;
+    clearTimeout(scrollTimer);
+    scrollTimer = setTimeout(() => { isScrolling = false; }, 150);
+  }, { passive: true });
+
   function loop() {
-    drawStars();
-    updateStars();
+    if (!isScrolling) {
+      drawStars();
+      updateStars();
+    }
     requestAnimationFrame(loop);
   }
 
@@ -189,16 +199,6 @@
     }
   ];
 
-  // Known screenshots for repos that have images in their README
-  const REPO_SCREENSHOTS = {
-    'Talent-Bridge': [
-      'https://github.com/user-attachments/assets/27363542-e688-4653-9a94-b18ce3a30ffb',
-      'https://github.com/user-attachments/assets/5ab30ff6-408b-42c3-a0fe-d7d9a562e697',
-      'https://github.com/user-attachments/assets/2ebf734a-7314-4aab-9396-d8572c1a466b'
-    ],
-    'PPW': [] // no images in README
-  };
-
   function langClass(lang) {
     const map = { Python:'Python', Java:'Java', C:'C', 'C++':'C', JavaScript:'JavaScript', TypeScript:'TypeScript', HTML:'HTML', CSS:'CSS' };
     return `lang-${map[lang] || 'default'}`;
@@ -215,32 +215,12 @@
     return `${Math.floor(m / 12)}y ago`;
   }
 
-  function buildScreenshots(name) {
-    const shots = REPO_SCREENSHOTS[name];
-    if (!shots || shots.length === 0) return '';
-    return `
-      <div class="repo-screenshots">
-        <div class="repo-screenshots-track" id="track-${name}">
-          ${shots.map((src, i) => `
-            <div class="repo-shot-wrap">
-              <img src="${src}" alt="${name} screenshot ${i + 1}" class="repo-shot" loading="lazy" onclick="openLightbox('${src}', '${name}')" />
-            </div>`).join('')}
-        </div>
-        ${shots.length > 1 ? `
-        <div class="shot-nav">
-          ${shots.map((_, i) => `<button class="shot-dot ${i === 0 ? 'active' : ''}" data-repo="${name}" data-idx="${i}"></button>`).join('')}
-        </div>` : ''}
-      </div>`;
-  }
-
   function buildCard(repo) {
     const topics = (repo.topics || []).slice(0, 4);
-    const shots  = buildScreenshots(repo.name);
     const card   = document.createElement('div');
-    card.className = `repo-card reveal${shots ? ' repo-card-has-shots' : ''}`;
+    card.className = 'repo-card reveal';
     card.dataset.lang = repo.language || '';
     card.innerHTML = `
-      ${shots}
       <div class="repo-body">
         <div class="repo-header-row">
           <svg class="repo-icon-svg" viewBox="0 0 16 16" width="15" height="15" fill="currentColor">
@@ -291,20 +271,6 @@
       io.observe(card);
     });
 
-    // Screenshot dot navigation
-    document.querySelectorAll('.shot-dot').forEach(dot => {
-      dot.addEventListener('click', () => {
-        const repo = dot.dataset.repo;
-        const idx  = parseInt(dot.dataset.idx, 10);
-        const track = document.getElementById(`track-${repo}`);
-        if (track) {
-          track.scrollTo({ left: track.offsetWidth * idx, behavior: 'smooth' });
-          document.querySelectorAll(`.shot-dot[data-repo="${repo}"]`).forEach((d, i) => {
-            d.classList.toggle('active', i === idx);
-          });
-        }
-      });
-    });
   }
 
   async function fetchRepos() {
@@ -339,39 +305,6 @@
   });
 
   fetchRepos();
-})();
-
-/* ============================================
-   LIGHTBOX FOR REPO SCREENSHOTS
-   ============================================ */
-(function () {
-  const overlay = document.createElement('div');
-  overlay.id = 'lightbox';
-  overlay.innerHTML = `
-    <div class="lb-backdrop"></div>
-    <div class="lb-content">
-      <button class="lb-close" aria-label="Close">✕</button>
-      <img class="lb-img" src="" alt="" />
-      <p class="lb-caption"></p>
-    </div>`;
-  document.body.appendChild(overlay);
-
-  window.openLightbox = function (src, name) {
-    overlay.querySelector('.lb-img').src = src;
-    overlay.querySelector('.lb-caption').textContent = name;
-    overlay.classList.add('open');
-    document.body.style.overflow = 'hidden';
-  };
-
-  function closeLb() {
-    overlay.classList.remove('open');
-    document.body.style.overflow = '';
-    overlay.querySelector('.lb-img').src = '';
-  }
-
-  overlay.querySelector('.lb-close').addEventListener('click', closeLb);
-  overlay.querySelector('.lb-backdrop').addEventListener('click', closeLb);
-  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLb(); });
 })();
 
 /* ============================================
