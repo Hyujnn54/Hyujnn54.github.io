@@ -508,10 +508,10 @@ img { max-width: 100%; display: block; }
 
 /* Repo card body */
 .repo-body {
-  padding: 1.2rem 1.4rem 1.4rem;
+  padding: .85rem 1.1rem 1rem;
   display: flex;
   flex-direction: column;
-  gap: .7rem;
+  gap: .5rem;
   flex: 1;
 }
 .repo-header-row {
@@ -540,9 +540,13 @@ img { max-width: 100%; display: block; }
 
 .repo-desc {
   color: var(--text-muted);
-  font-size: .875rem;
-  line-height: 1.5;
+  font-size: .855rem;
+  line-height: 1.45;
   flex: 1;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .repo-topics {
