@@ -11,7 +11,7 @@
     H = canvas.height = window.innerHeight;
   }
 
-  function createStars(n = 120) {
+  function createStars(n = 70) {
     stars = [];
     for (let i = 0; i < n; i++) {
       stars.push({
@@ -33,23 +33,6 @@
       ctx.fillStyle = `rgba(88,166,255,${s.alpha})`;
       ctx.fill();
     });
-
-    // Draw connection lines between nearby stars
-    for (let i = 0; i < stars.length; i++) {
-      for (let j = i + 1; j < stars.length; j++) {
-        const dx = stars[i].x - stars[j].x;
-        const dy = stars[i].y - stars[j].y;
-        const dist = Math.sqrt(dx * dx + dy * dy);
-        if (dist < 100) {
-          ctx.beginPath();
-          ctx.moveTo(stars[i].x, stars[i].y);
-          ctx.lineTo(stars[j].x, stars[j].y);
-          ctx.strokeStyle = `rgba(88,166,255,${0.08 * (1 - dist / 100)})`;
-          ctx.lineWidth = 0.6;
-          ctx.stroke();
-        }
-      }
-    }
   }
 
   function updateStars() {
