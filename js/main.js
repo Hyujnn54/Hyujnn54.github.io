@@ -291,147 +291,170 @@
    MERCURY LIQUID EFFECT
    ============================================ */
 (function () {
-  const scene   = document.getElementById('mercury-scene');
   const canvas  = document.getElementById('mercury-canvas');
   const invCvs  = document.getElementById('mercury-inv-canvas');
-  if (!scene || !canvas || !invCvs) return;
+  const hero    = document.querySelector('.hero');
+  if (!canvas || !invCvs || !hero) return;
 
   const ctx    = canvas.getContext('2d');
   const invCtx = invCvs.getContext('2d');
-  const SCALE  = 0.22;   // render at 22% resolution — fast + smooth when upscaled
-  const THRESH = 1.0;
-  let W, H, SW, SH;
 
-  const mouse  = { x: -9999, y: -9999 };
-  const blobs  = [];
-  const NUM    = 7;
+  const SCALE  = 0.18;   // low-res render upscaled — smooth + fast
+  const THRESH = 1.0;
+  // Light direction (top-left, angled toward viewer)
+  const LX = 0.5774, LY = -0.5774, LZ = 0.5774; // normalized
+  // Blinn-Phong half-vector (between light and viewer (0,0,1))
+  const HX = LX * 0.5, HY = LY * 0.5, HZ = (LZ + 1) * 0.5;
+  const HLEN = Math.sqrt(HX*HX + HY*HY + HZ*HZ);
+
+  let W, H, SW, SH;
+  const mouse = { x: -9999, y: -9999 };
+  const blobs = [];
+  const NUM   = 9;
 
   class Blob {
-    constructor () {
-      this.reset();
+    constructor(i) {
+      this.r  = 80 + Math.random() * 80;
+      this.x  = (0.1 + Math.random() * 0.8) * (W || 1000);
+      this.y  = (0.1 + Math.random() * 0.8) * (H || 600);
+      this.vx = (Math.random() - 0.5) * 0.4;
+      this.vy = (Math.random() - 0.5) * 0.4;
     }
-    reset () {
-      this.x  = (0.15 + Math.random() * 0.7) * (W || 900);
-      this.y  = (0.15 + Math.random() * 0.7) * (H || 600);
-      this.vx = (Math.random() - 0.5) * 0.6;
-      this.vy = (Math.random() - 0.5) * 0.6;
-      this.r  = 90 + Math.random() * 90;  // metaball radius
-    }
-    update () {
-      // flee mouse
+    update() {
+      // Localized cursor repulsion — only blobs within 120px of cursor are pushed
       const dx   = this.x - mouse.x;
       const dy   = this.y - mouse.y;
       const dist = Math.sqrt(dx * dx + dy * dy) || 1;
-      const flee = 220;
-      if (dist < flee) {
-        const f = Math.pow((flee - dist) / flee, 1.8) * 7;
-        this.vx += (dx / dist) * f;
-        this.vy += (dy / dist) * f;
+      const FLEE = 130;
+      if (dist < FLEE) {
+        const strength = Math.pow((FLEE - dist) / FLEE, 2) * 9;
+        this.vx += (dx / dist) * strength;
+        this.vy += (dy / dist) * strength;
       }
-      // wander
-      this.vx += (Math.random() - 0.5) * 0.12;
-      this.vy += (Math.random() - 0.5) * 0.12;
-      // damping
-      this.vx *= 0.92;
-      this.vy *= 0.92;
-      // speed cap
-      const spd = Math.sqrt(this.vx * this.vx + this.vy * this.vy);
-      if (spd > 8) { this.vx = this.vx / spd * 8; this.vy = this.vy / spd * 8; }
+      // Gentle wander
+      this.vx += (Math.random() - 0.5) * 0.08;
+      this.vy += (Math.random() - 0.5) * 0.08;
+      // Strong damping so they rejoin quickly when cursor leaves
+      this.vx *= 0.88;
+      this.vy *= 0.88;
+      // Speed cap
+      const spd = Math.sqrt(this.vx*this.vx + this.vy*this.vy);
+      if (spd > 7) { this.vx = this.vx/spd*7; this.vy = this.vy/spd*7; }
       this.x += this.vx;
       this.y += this.vy;
-      // bounce
-      const p = this.r * 0.4;
-      if (this.x < p)     { this.x = p;     this.vx =  Math.abs(this.vx) * 0.7; }
-      if (this.x > W - p) { this.x = W - p; this.vx = -Math.abs(this.vx) * 0.7; }
-      if (this.y < p)     { this.y = p;     this.vy =  Math.abs(this.vy) * 0.7; }
-      if (this.y > H - p) { this.y = H - p; this.vy = -Math.abs(this.vy) * 0.7; }
+      // Soft bounce
+      const pad = this.r * 0.3;
+      if (this.x < pad)     { this.x = pad;     this.vx =  Math.abs(this.vx) * 0.6; }
+      if (this.x > W - pad) { this.x = W - pad; this.vx = -Math.abs(this.vx) * 0.6; }
+      if (this.y < pad)     { this.y = pad;     this.vy =  Math.abs(this.vy) * 0.6; }
+      if (this.y > H - pad) { this.y = H - pad; this.vy = -Math.abs(this.vy) * 0.6; }
     }
   }
 
-  function resize () {
-    W  = scene.offsetWidth;
-    H  = scene.offsetHeight;
+  function resize() {
+    W  = hero.offsetWidth;
+    H  = hero.offsetHeight;
     SW = Math.ceil(W * SCALE);
     SH = Math.ceil(H * SCALE);
-    canvas.width  = SW;  canvas.height  = SH;
-    invCvs.width  = SW;  invCvs.height  = SH;
-    canvas.style.width  = W + 'px';  canvas.style.height  = H + 'px';
-    invCvs.style.width  = W + 'px';  invCvs.style.height  = H + 'px';
+    [canvas, invCvs].forEach(c => {
+      c.width  = SW;            c.height  = SH;
+      c.style.width  = W + 'px'; c.style.height = H + 'px';
+    });
   }
 
-  function initBlobs () {
+  function initBlobs() {
     blobs.length = 0;
-    for (let i = 0; i < NUM; i++) blobs.push(new Blob());
+    for (let i = 0; i < NUM; i++) blobs.push(new Blob(i));
   }
 
-  // Pre-allocate image data buffers
-  let imgData, invData;
+  function fieldAndGrad(wx, wy) {
+    let sum = 0, gx = 0, gy = 0;
+    for (let k = 0; k < blobs.length; k++) {
+      const b  = blobs[k];
+      const ex = wx - b.x, ey = wy - b.y;
+      const d2 = ex*ex + ey*ey || 0.0001;
+      const d4 = d2 * d2;
+      const r2 = b.r * b.r;
+      sum += r2 / d2;
+      // analytical gradient: d/dx(r²/d²) = -2r²x/d⁴
+      gx  -= 2 * r2 * ex / d4;
+      gy  -= 2 * r2 * ey / d4;
+    }
+    return { sum, gx, gy };
+  }
 
-  function render () {
+  function render() {
     if (!SW || !SH) { requestAnimationFrame(render); return; }
 
-    imgData = ctx.createImageData(SW, SH);
-    invData = invCtx.createImageData(SW, SH);
-    const px  = imgData.data;
-    const ipx = invData.data;
+    const imgD = ctx.createImageData(SW, SH);
+    const invD = invCtx.createImageData(SW, SH);
+    const px   = imgD.data;
+    const ipx  = invD.data;
 
-    for (let y = 0; y < SH; y++) {
-      for (let x = 0; x < SW; x++) {
-        const wx = x / SCALE;
-        const wy = y / SCALE;
-        let sum = 0;
-        for (let k = 0; k < blobs.length; k++) {
-          const b  = blobs[k];
-          const dx = wx - b.x;
-          const dy = wy - b.y;
-          const d2 = dx * dx + dy * dy || 0.001;
-          sum += (b.r * b.r) / d2;
-        }
+    for (let py = 0; py < SH; py++) {
+      for (let qx = 0; qx < SW; qx++) {
+        const wx = qx / SCALE;
+        const wy = py / SCALE;
+        const { sum, gx, gy } = fieldAndGrad(wx, wy);
 
-        if (sum >= THRESH) {
-          const idx = (y * SW + x) * 4;
-          // shimmer: higher field = brighter highlight
-          const sh  = Math.min(sum / 2.5, 1);
-          // base silver-chrome palette with specular highlight
-          const hi  = Math.round(160 + sh * 95);   // R
-          const hg  = Math.round(168 + sh * 87);   // G
-          const hb  = Math.round(180 + sh * 75);   // B
-          // smooth edge via logistic curve near threshold
-          const edge = Math.min((sum - THRESH) * 8, 1);
-          const a   = Math.round(edge * 215);
+        if (sum < THRESH) continue;
 
-          px[idx]   = hi;
-          px[idx+1] = hg;
-          px[idx+2] = hb;
-          px[idx+3] = a;
+        // ---- Surface normal from analytical gradient ----
+        // gradient points toward blob center (increasing field)
+        // surface normal in 3D: inward-2D + fake z-height gives lens shape
+        const glen = Math.sqrt(gx*gx + gy*gy) || 0.001;
+        const nx_raw = gx / glen;   // tangent direction
+        const ny_raw = gy / glen;
+        // The nearer we are to the surface edge, the more the normal tilts
+        // surface tilt factor: high near threshold, 0 at center
+        const tilt = Math.min(1, THRESH / sum); // 1 at edge, 0 at center
+        const nx = nx_raw * tilt;
+        const ny = ny_raw * tilt;
+        const nz = Math.sqrt(Math.max(0, 1 - nx*nx - ny*ny));
 
-          // inversion canvas: white mask (mix-blend-mode: difference inverts below)
-          ipx[idx]   = 255;
-          ipx[idx+1] = 255;
-          ipx[idx+2] = 255;
-          ipx[idx+3] = Math.round(edge * 200);
-        }
+        // ---- Phong Lighting ----
+        const diff = Math.max(0, nx*LX + ny*LY + nz*LZ);
+        // Blinn-Phong specular
+        const ndotH = Math.max(0, nx*(HX/HLEN) + ny*(HY/HLEN) + nz*(HZ/HLEN));
+        const spec  = Math.pow(ndotH, 48);
+
+        // ---- Edge darkness (black rim like real mercury) ----
+        // edge_t: 0 at threshold boundary, rises quickly inward
+        const edge_t = Math.min(1, (sum - THRESH) * 5);
+        // Fresnel-like: edges are very dark (1 - edge_t is high at rim)
+        const rim  = edge_t * edge_t;  // sharply dark at very edge
+
+        // ---- Silver base color with lighting ----
+        // ambient 0.12, diffuse 0.55, specular 1.0 white
+        const ambR = 145 * 0.12, ambG = 158 * 0.12, ambB = 172 * 0.12;
+        const R = Math.min(255, Math.round((ambR + 145 * 0.55 * diff + 255 * spec) * rim));
+        const G = Math.min(255, Math.round((ambG + 158 * 0.55 * diff + 255 * spec) * rim));
+        const B = Math.min(255, Math.round((ambB + 172 * 0.55 * diff + 255 * spec) * rim));
+        const A  = Math.round(Math.min(1, edge_t * 3) * 235);
+
+        const idx = (py * SW + qx) * 4;
+        px[idx]   = R;  px[idx+1] = G;  px[idx+2] = B;  px[idx+3] = A;
+
+        // Inversion mask: pure white in mercury shape
+        ipx[idx]   = 255; ipx[idx+1] = 255; ipx[idx+2] = 255;
+        ipx[idx+3] = Math.round(rim * 200);
       }
     }
 
-    ctx.putImageData(imgData, 0, 0);
-    invCtx.putImageData(invData, 0, 0);
+    ctx.putImageData(imgD, 0, 0);
+    invCtx.putImageData(invD, 0, 0);
     blobs.forEach(b => b.update());
     requestAnimationFrame(render);
   }
 
-  // Track mouse from the hero section for accurate coords
-  const hero = document.querySelector('.hero');
   hero.addEventListener('mousemove', e => {
-    const r  = hero.getBoundingClientRect();
-    mouse.x  = e.clientX - r.left;
-    mouse.y  = e.clientY - r.top;
-    scene.classList.add('active');
+    const r = hero.getBoundingClientRect();
+    mouse.x = e.clientX - r.left;
+    mouse.y = e.clientY - r.top;
   }, { passive: true });
   hero.addEventListener('mouseleave', () => {
     mouse.x = -9999;
     mouse.y = -9999;
-    scene.classList.remove('active');
   });
 
   resize();
