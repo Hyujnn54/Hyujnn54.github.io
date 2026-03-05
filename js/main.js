@@ -288,13 +288,70 @@
 })();
 
 /* ============================================
-   MERCURY LIQUID EFFECT
+   MAGNETIC CURSOR
    ============================================ */
 (function () {
-  const canvas  = document.getElementById('mercury-canvas');
-  const invCvs  = document.getElementById('mercury-inv-canvas');
-  const hero    = document.querySelector('.hero');
-  if (!canvas || !invCvs || !hero) return;
+  const dot  = document.querySelector('.cursor-dot');
+  const ring = document.querySelector('.cursor-ring');
+  if (!dot || !ring) return;
+
+  // Only activate on mouse devices
+  if (window.matchMedia('(pointer: coarse)').matches) return;
+
+  let mX = -300, mY = -300;
+  let rX = -300, rY = -300;
+
+  document.addEventListener('mousemove', e => {
+    mX = e.clientX;
+    mY = e.clientY;
+  }, { passive: true });
+
+  document.addEventListener('mousedown', () => ring.classList.add('is-clicked'),    { passive: true });
+  document.addEventListener('mouseup',   () => setTimeout(() => ring.classList.remove('is-clicked'), 160), { passive: true });
+  document.addEventListener('mouseleave', () => { dot.style.opacity = '0'; ring.style.opacity = '0'; });
+  document.addEventListener('mouseenter', () => { dot.style.opacity  = ''; ring.style.opacity  = ''; });
+
+  // Elements that get magnetically pulled toward the cursor
+  const SELECTORS = '.btn, .nav-links a, .hero-avatar-wrap, .social-link, .tech-tag';
+  const RADIUS    = 90; // px — activation zone
+
+  function loop() {
+    // Dot tracks cursor exactly
+    dot.style.left = mX + 'px';
+    dot.style.top  = mY + 'px';
+
+    // Ring lerps behind with slight lag
+    rX += (mX - rX) * 0.11;
+    rY += (mY - rY) * 0.11;
+    ring.style.left = rX + 'px';
+    ring.style.top  = rY + 'px';
+
+    // Magnetic pull
+    let nearAny = false;
+    document.querySelectorAll(SELECTORS).forEach(el => {
+      const rect = el.getBoundingClientRect();
+      const cx   = rect.left + rect.width  * 0.5;
+      const cy   = rect.top  + rect.height * 0.5;
+      const dx   = mX - cx;
+      const dy   = mY - cy;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+
+      if (dist < RADIUS) {
+        nearAny = true;
+        const pull = (RADIUS - dist) / RADIUS;   // 0 at edge → 1 at center
+        el.style.transform  = `translate(${dx * pull * 0.36}px, ${dy * pull * 0.36}px)`;
+        el.style.transition = 'transform 0.08s linear';
+      } else {
+        el.style.transform  = '';
+        el.style.transition = 'transform 0.55s cubic-bezier(0.23,1,0.32,1)';
+      }
+    });
+
+    ring.classList.toggle('is-hovered', nearAny);
+    requestAnimationFrame(loop);
+  }
+
+  loop();
 
   const ctx    = canvas.getContext('2d');
   const invCtx = invCvs.getContext('2d');
@@ -457,10 +514,6 @@
     mouse.y = -9999;
   });
 
-  resize();
-  initBlobs();
-  render();
-  window.addEventListener('resize', () => { resize(); initBlobs(); });
 })();
 
 /* ============================================

@@ -6,12 +6,16 @@
   <title>Hyujnn | Portfolio</title>
   <meta name="description" content="Computer Science Student | Cloud & Cybersecurity Enthusiast" />
   <link rel="icon" href="https://avatars.githubusercontent.com/u/140203430?v=4" />
-  <link rel="stylesheet" href="css/style.css?v=8" />
+  <link rel="stylesheet" href="css/style.css?v=9" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
 </head>
 <body>
+
+  <!-- Magnetic cursor -->
+  <div class="cursor-dot" aria-hidden="true"></div>
+  <div class="cursor-ring" aria-hidden="true"></div>
 
   <!-- Canvas Background -->
   <canvas id="bg-canvas"></canvas>
@@ -35,8 +39,6 @@
 
   <!-- Hero Section -->
   <section class="hero" id="home">
-    <!-- Mercury base canvas: silver texture, below content -->
-    <canvas id="mercury-canvas"></canvas>
     <div class="hero-content">
       <div class="hero-avatar-wrap">
         <img src="https://avatars.githubusercontent.com/u/140203430?v=4" alt="Hyujnn" class="hero-avatar" />
@@ -62,8 +64,6 @@
         <img src="https://komarev.com/ghpvc/?username=Hyujnn54&label=Profile%20Views&color=0e75b6&style=flat" alt="Profile Views" />
       </div>
     </div>
-    <!-- Mercury inversion mask: white shape above content for color inversion -->
-    <canvas id="mercury-inv-canvas"></canvas>
     <div class="scroll-indicator">
       <span></span>
     </div>
@@ -218,6 +218,6 @@
     <p class="footer-sub">⭐ Always learning. Always building.</p>
   </footer>
 
-  <script src="js/main.js?v=8"></script>
+  <script src="js/main.js?v=9"></script>
 </body>
 </html>
