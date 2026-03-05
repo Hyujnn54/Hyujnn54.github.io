@@ -165,7 +165,7 @@
   let allRepos = [];
 
   // Repos to never show (readme-only or portfolio repo itself)
-  const EXCLUDED_REPOS = new Set(['Hyujnn54', 'hyujnn_portfolio']);
+  const EXCLUDED_REPOS = new Set(['Hyujnn54', 'hyujnn_portfolio', 'Hyujnn54.github.io']);
 
   // Extra pinned repo (collaboration)
   const FEATURED_EXTRA = [

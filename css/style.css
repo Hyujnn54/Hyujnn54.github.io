@@ -484,7 +484,8 @@ img { max-width: 100%; display: block; }
   border-radius: var(--radius);
   display: flex;
   flex-direction: column;
-  height: 175px;
+  height: 180px !important;
+  max-height: 180px !important;
   transition: transform .25s, box-shadow .25s, border-color .25s;
   position: relative;
   overflow: hidden;
@@ -654,12 +655,10 @@ img { max-width: 100%; display: block; }
    ============================================ */
 .reveal {
   opacity: 0;
-  transform: translateY(16px);
-  transition: opacity .5s ease, transform .5s ease;
+  transition: opacity .5s ease;
 }
 .reveal.visible {
   opacity: 1;
-  transform: translateY(0);
 }
 
 /* ============================================
