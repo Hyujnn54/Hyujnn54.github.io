@@ -42,8 +42,51 @@
     return [cx+v[0]*fov/z, cy+v[1]*fov/z];
   }
 
-  /* ---- Shapes: cyAbs = absolute Y in document px ----
-     Distributed every ~15 % of page height, left/right margins */
+  /* ---- Floating code lines ---- */
+  const CODE_SNIPPETS = [
+    'const x = 0;', 'void main()', '#include <stdio.h>', 'int[] arr = {};',
+    'import os', 'git push origin', 'ssh-keygen -t rsa', 'nmap -sV 127.0.0.1',
+    'chmod 755', 'malloc(sizeof(t))', 'AES_256_GCM', 'SELECT * FROM users',
+    'async/await', 'for(;;){}', 'while(true)', 'typedef struct node',
+    'return 0;', 'iptables -A INPUT', 'docker run -it', 'kubectl get pods',
+    'gcc -O2 -Wall', '0x00000000', '>>> EOF', 'NULL PTR',
+    '01001000 01101001', 'SIGTERM', 'cat /etc/passwd', 'ping -c 4',
+    'openssl enc -aes', 'netstat -an', 'traceroute', 'sudo !!'
+  ];
+  let codeLines = [];
+
+  function buildCodeLines() {
+    codeLines = [];
+    const count = 32;
+    for (let i = 0; i < count; i++) {
+      const y = Math.random() * H;
+      codeLines.push({
+        text:  CODE_SNIPPETS[Math.floor(Math.random() * CODE_SNIPPETS.length)],
+        x:     (0.14 + Math.random() * 0.72) * W,
+        y,
+        vy:    0.22 + Math.random() * 0.30,
+        alpha: 0.038 + Math.random() * 0.045,
+        size:  10 + Math.floor(Math.random() * 3)
+      });
+    }
+  }
+
+  function drawCodeLines() {
+    ctx.textBaseline = 'top';
+    codeLines.forEach(cl => {
+      ctx.font        = `${cl.size}px 'JetBrains Mono', monospace`;
+      ctx.fillStyle   = `rgba(255,255,255,${cl.alpha})`;
+      ctx.fillText(cl.text, cl.x, cl.y);
+      cl.y -= cl.vy;
+      if (cl.y < -20) {
+        cl.y    = H + 20 + Math.random() * 300;
+        cl.text = CODE_SNIPPETS[Math.floor(Math.random() * CODE_SNIPPETS.length)];
+        cl.x    = (0.14 + Math.random() * 0.72) * W;
+      }
+    });
+  }
+
+  /* ---- Shapes ---- */
   const DEFS = [
     // near top
     { type:'ico', cxF:0.08, yF:0.06, sz:88,  arx:0,   ary:0,   arz:0,   drx: 0.004, dry: 0.007, drz: 0.002, a:0.11 },
@@ -109,6 +152,7 @@
 
   function loop() {
     ctx.clearRect(0, 0, W, H);
+    drawCodeLines();
     shapes.forEach(drawShape);
     requestAnimationFrame(loop);
   }
@@ -118,6 +162,7 @@
     // Use full document height so shapes live in page-space
     H = canvas.height = Math.max(document.body.scrollHeight, window.innerHeight);
     buildShapes();
+    buildCodeLines();
   }
 
   // Wait for page to finish layout before measuring scrollHeight
@@ -196,6 +241,76 @@
   }
 
   type();
+})();
+
+/* ============================================
+   TEXT SCRAMBLE ON HOVER
+   ============================================ */
+(function () {
+  const CHARS = '!<>-_\/[]{}=+*^?#01ABXZ$%@~';
+  function scramble(el) {
+    const original = el.dataset.scrambleOrig || el.textContent;
+    el.dataset.scrambleOrig = original;
+    let iter = 0;
+    clearInterval(el._si);
+    el._si = setInterval(() => {
+      el.textContent = original.split('').map((ch, i) => {
+        if (ch === ' ' || ch === '.') return ch;
+        if (i < Math.floor(iter)) return original[i];
+        return CHARS[Math.floor(Math.random() * CHARS.length)];
+      }).join('');
+      iter += 0.45;
+      if (iter > original.length) {
+        clearInterval(el._si);
+        el.textContent = original;
+      }
+    }, 28);
+  }
+  function restore(el) {
+    clearInterval(el._si);
+    el.textContent = el.dataset.scrambleOrig || el.textContent;
+  }
+  // Targets: nav links + section titles text nodes
+  document.querySelectorAll('.nav-links a').forEach(el => {
+    el.addEventListener('mouseenter', () => scramble(el));
+    el.addEventListener('mouseleave', () => restore(el));
+  });
+  // Section numbers stay; scramble the text after the <span>
+  document.querySelectorAll('.section-title').forEach(title => {
+    title.addEventListener('mouseenter', () => {
+      const span = title.querySelector('.section-num');
+      const orig = span ? title.textContent.replace(span.textContent, '').trim() : title.textContent;
+      scramble(title);
+      // Put num span back after a tick so it isn't scrambled
+      if (span) requestAnimationFrame(() => title.prepend(span));
+    });
+    title.addEventListener('mouseleave', () => restore(title));
+  });
+})();
+
+/* ============================================
+   PARALLAX SECTIONS
+   ============================================ */
+(function () {
+  const FACTOR = 0.045;
+  const sections = Array.from(document.querySelectorAll('.section'));
+
+  function applyParallax() {
+    const sy = window.scrollY;
+    const vh = window.innerHeight;
+    sections.forEach(sec => {
+      const container = sec.querySelector('.container');
+      if (!container) return;
+      const rect   = sec.getBoundingClientRect();
+      const center = rect.top + rect.height / 2;
+      const shift  = (center - vh / 2) * FACTOR;
+      container.style.transform = `translateY(${shift}px)`;
+    });
+  }
+
+  window.addEventListener('scroll', applyParallax, { passive: true });
+  window.addEventListener('resize', applyParallax);
+  applyParallax();
 })();
 
 /* ============================================
