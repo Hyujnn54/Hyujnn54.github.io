@@ -65,8 +65,8 @@
         x:     (0.14 + Math.random() * 0.72) * W,
         y,
         vy:    0.22 + Math.random() * 0.30,
-        alpha: 0.038 + Math.random() * 0.045,
-        size:  10 + Math.floor(Math.random() * 3)
+        alpha: 0.13 + Math.random() * 0.11,
+        size:  11 + Math.floor(Math.random() * 3)
       });
     }
   }
@@ -89,22 +89,22 @@
   /* ---- Shapes ---- */
   const DEFS = [
     // near top
-    { type:'ico', cxF:0.08, yF:0.06, sz:88,  arx:0,   ary:0,   arz:0,   drx: 0.004, dry: 0.007, drz: 0.002, a:0.11 },
-    { type:'oct', cxF:0.92, yF:0.09, sz:62,  arx:0.5, ary:0.2, arz:0,   drx: 0.007, dry:-0.005, drz: 0.002, a:0.12 },
-    { type:'cub', cxF:0.05, yF:0.17, sz:52,  arx:0.3, ary:0.6, arz:0.2, drx:-0.003, dry:-0.006, drz: 0.004, a:0.09 },
-    { type:'tet', cxF:0.94, yF:0.24, sz:70,  arx:1.0, ary:0.5, arz:0.3, drx:-0.005, dry: 0.008, drz: 0.004, a:0.09 },
+    { type:'ico', cxF:0.08, yF:0.06, sz:88,  arx:0,   ary:0,   arz:0,   drx: 0.004, dry: 0.007, drz: 0.002, a:0.32 },
+    { type:'oct', cxF:0.92, yF:0.09, sz:62,  arx:0.5, ary:0.2, arz:0,   drx: 0.007, dry:-0.005, drz: 0.002, a:0.35 },
+    { type:'cub', cxF:0.05, yF:0.17, sz:52,  arx:0.3, ary:0.6, arz:0.2, drx:-0.003, dry:-0.006, drz: 0.004, a:0.28 },
+    { type:'tet', cxF:0.94, yF:0.24, sz:70,  arx:1.0, ary:0.5, arz:0.3, drx:-0.005, dry: 0.008, drz: 0.004, a:0.30 },
     // mid
-    { type:'ico', cxF:0.07, yF:0.34, sz:55,  arx:0.8, ary:0.4, arz:0,   drx: 0.006, dry:-0.004, drz: 0.005, a:0.10 },
-    { type:'cub', cxF:0.93, yF:0.40, sz:68,  arx:0.2, ary:1.0, arz:0.5, drx:-0.004, dry: 0.006, drz:-0.003, a:0.10 },
-    { type:'oct', cxF:0.06, yF:0.50, sz:58,  arx:0.7, ary:0,   arz:0.4, drx:-0.006, dry: 0.005, drz:-0.004, a:0.10 },
-    { type:'tet', cxF:0.94, yF:0.57, sz:76,  arx:0,   ary:0.8, arz:0.6, drx: 0.003, dry: 0.005, drz:-0.006, a:0.10 },
+    { type:'ico', cxF:0.07, yF:0.34, sz:55,  arx:0.8, ary:0.4, arz:0,   drx: 0.006, dry:-0.004, drz: 0.005, a:0.30 },
+    { type:'cub', cxF:0.93, yF:0.40, sz:68,  arx:0.2, ary:1.0, arz:0.5, drx:-0.004, dry: 0.006, drz:-0.003, a:0.33 },
+    { type:'oct', cxF:0.06, yF:0.50, sz:58,  arx:0.7, ary:0,   arz:0.4, drx:-0.006, dry: 0.005, drz:-0.004, a:0.30 },
+    { type:'tet', cxF:0.94, yF:0.57, sz:76,  arx:0,   ary:0.8, arz:0.6, drx: 0.003, dry: 0.005, drz:-0.006, a:0.32 },
     // lower half
-    { type:'ico', cxF:0.08, yF:0.66, sz:80,  arx:0.4, ary:1.1, arz:0.2, drx: 0.005, dry: 0.004, drz: 0.003, a:0.10 },
-    { type:'cub', cxF:0.92, yF:0.73, sz:55,  arx:0.9, ary:0.3, arz:0.7, drx:-0.004, dry:-0.005, drz: 0.006, a:0.09 },
-    { type:'oct', cxF:0.06, yF:0.82, sz:64,  arx:0.1, ary:0.6, arz:0.4, drx: 0.006, dry: 0.007, drz:-0.003, a:0.11 },
-    { type:'tet', cxF:0.93, yF:0.88, sz:72,  arx:0.5, ary:0.2, arz:0.9, drx:-0.005, dry: 0.003, drz: 0.005, a:0.10 },
-    { type:'ico', cxF:0.07, yF:0.94, sz:50,  arx:1.2, ary:0.7, arz:0.3, drx: 0.004, dry:-0.006, drz: 0.003, a:0.08 },
-    { type:'cub', cxF:0.93, yF:0.98, sz:60,  arx:0.6, ary:0.9, arz:0.1, drx:-0.003, dry: 0.005, drz:-0.005, a:0.09 },
+    { type:'ico', cxF:0.08, yF:0.66, sz:80,  arx:0.4, ary:1.1, arz:0.2, drx: 0.005, dry: 0.004, drz: 0.003, a:0.30 },
+    { type:'cub', cxF:0.92, yF:0.73, sz:55,  arx:0.9, ary:0.3, arz:0.7, drx:-0.004, dry:-0.005, drz: 0.006, a:0.28 },
+    { type:'oct', cxF:0.06, yF:0.82, sz:64,  arx:0.1, ary:0.6, arz:0.4, drx: 0.006, dry: 0.007, drz:-0.003, a:0.33 },
+    { type:'tet', cxF:0.93, yF:0.88, sz:72,  arx:0.5, ary:0.2, arz:0.9, drx:-0.005, dry: 0.003, drz: 0.005, a:0.30 },
+    { type:'ico', cxF:0.07, yF:0.94, sz:50,  arx:1.2, ary:0.7, arz:0.3, drx: 0.004, dry:-0.006, drz: 0.003, a:0.26 },
+    { type:'cub', cxF:0.93, yF:0.98, sz:60,  arx:0.6, ary:0.9, arz:0.1, drx:-0.003, dry: 0.005, drz:-0.005, a:0.28 },
   ];
   let shapes = [];
 
@@ -132,7 +132,7 @@
 
     ctx.beginPath();
     ctx.strokeStyle = `rgba(255,255,255,${sh.a})`;
-    ctx.lineWidth   = 0.8;
+    ctx.lineWidth   = 1.6;
     geo.edges.forEach(([i,j]) => {
       if (!pts[i] || !pts[j]) return;
       ctx.moveTo(pts[i][0], pts[i][1]);
