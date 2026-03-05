@@ -344,7 +344,7 @@ img { max-width: 100%; display: block; }
 }
 .about-list li:hover { color: var(--text); border-color: var(--accent-2); }
 
-.about-meta { font-size: .9rem; }
+.about-meta { font-size: .9rem; display: flex; flex-wrap: wrap; gap: .75rem 1.5rem; margin-top: .5rem; }
 .about-meta a { color: var(--accent-2); }
 
 .about-banners {
@@ -426,9 +426,6 @@ img { max-width: 100%; display: block; }
 }
 .stats-img { width: 100%; border-radius: var(--radius-sm); }
 .stats-img-wide { width: 100%; }
-
-.snake-wrap { text-align: center; }
-.snake-img { max-width: 100%; border-radius: var(--radius-sm); margin-top: .75rem; }
 
 /* ============================================
    REPOSITORIES
