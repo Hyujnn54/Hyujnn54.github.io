@@ -243,15 +243,12 @@
       return;
     }
 
-    const io = new IntersectionObserver(entries => {
-      entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target); } });
-    }, { threshold: 0.08 });
-
     filtered.forEach((repo, i) => {
       const card = buildCard(repo);
-      card.style.transitionDelay = `${i * 60}ms`;
+      card.style.transitionDelay = `${i * 40}ms`;
+      // small timeout so opacity transition plays after paint
+      setTimeout(() => card.classList.add('visible'), 30 + i * 40);
       grid.appendChild(card);
-      io.observe(card);
     });
 
   }
@@ -288,6 +285,22 @@
   });
 
   fetchRepos();
+
+  // Drag to scroll
+  let isDragging = false, startX, scrollLeft;
+  grid.addEventListener('mousedown', e => {
+    isDragging = true;
+    startX = e.pageX - grid.offsetLeft;
+    scrollLeft = grid.scrollLeft;
+    grid.style.userSelect = 'none';
+  });
+  window.addEventListener('mouseup', () => { isDragging = false; grid.style.userSelect = ''; });
+  grid.addEventListener('mousemove', e => {
+    if (!isDragging) return;
+    e.preventDefault();
+    const x = e.pageX - grid.offsetLeft;
+    grid.scrollLeft = scrollLeft - (x - startX) * 1.2;
+  });
 })();
 
 /* ============================================
