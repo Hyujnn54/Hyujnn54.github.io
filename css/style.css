@@ -88,7 +88,9 @@ img { max-width: 100%; display: block; }
   display: flex;
   gap: 2rem;
   list-style: none;
-  justify-self: center;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
 }
 .nav-links a {
   font-family: var(--font-mono);
@@ -830,7 +832,6 @@ img { max-width: 100%; display: block; }
     transform: translateY(-120%);
     transition: transform .35s;
     border-bottom: 1px solid var(--border);
-    justify-self: unset;
   }
   .nav-links.open { transform: translateY(0); }
   .hamburger { display: flex; }

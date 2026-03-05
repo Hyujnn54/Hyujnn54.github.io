@@ -292,7 +292,7 @@
    PARALLAX SECTIONS
    ============================================ */
 (function () {
-  const FACTOR = 0.045;
+  const FACTOR = 0.16;
   const sections = Array.from(document.querySelectorAll('.section'));
 
   function applyParallax() {
