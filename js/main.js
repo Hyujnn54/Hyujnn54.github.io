@@ -285,22 +285,6 @@
   });
 
   fetchRepos();
-
-  // Drag to scroll
-  let isDragging = false, startX, scrollLeft;
-  grid.addEventListener('mousedown', e => {
-    isDragging = true;
-    startX = e.pageX - grid.offsetLeft;
-    scrollLeft = grid.scrollLeft;
-    grid.style.userSelect = 'none';
-  });
-  window.addEventListener('mouseup', () => { isDragging = false; grid.style.userSelect = ''; });
-  grid.addEventListener('mousemove', e => {
-    if (!isDragging) return;
-    e.preventDefault();
-    const x = e.pageX - grid.offsetLeft;
-    grid.scrollLeft = scrollLeft - (x - startX) * 1.2;
-  });
 })();
 
 /* ============================================
