@@ -288,6 +288,159 @@
 })();
 
 /* ============================================
+   MERCURY LIQUID EFFECT
+   ============================================ */
+(function () {
+  const scene   = document.getElementById('mercury-scene');
+  const canvas  = document.getElementById('mercury-canvas');
+  const invCvs  = document.getElementById('mercury-inv-canvas');
+  if (!scene || !canvas || !invCvs) return;
+
+  const ctx    = canvas.getContext('2d');
+  const invCtx = invCvs.getContext('2d');
+  const SCALE  = 0.22;   // render at 22% resolution — fast + smooth when upscaled
+  const THRESH = 1.0;
+  let W, H, SW, SH;
+
+  const mouse  = { x: -9999, y: -9999 };
+  const blobs  = [];
+  const NUM    = 7;
+
+  class Blob {
+    constructor () {
+      this.reset();
+    }
+    reset () {
+      this.x  = (0.15 + Math.random() * 0.7) * (W || 900);
+      this.y  = (0.15 + Math.random() * 0.7) * (H || 600);
+      this.vx = (Math.random() - 0.5) * 0.6;
+      this.vy = (Math.random() - 0.5) * 0.6;
+      this.r  = 90 + Math.random() * 90;  // metaball radius
+    }
+    update () {
+      // flee mouse
+      const dx   = this.x - mouse.x;
+      const dy   = this.y - mouse.y;
+      const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+      const flee = 220;
+      if (dist < flee) {
+        const f = Math.pow((flee - dist) / flee, 1.8) * 7;
+        this.vx += (dx / dist) * f;
+        this.vy += (dy / dist) * f;
+      }
+      // wander
+      this.vx += (Math.random() - 0.5) * 0.12;
+      this.vy += (Math.random() - 0.5) * 0.12;
+      // damping
+      this.vx *= 0.92;
+      this.vy *= 0.92;
+      // speed cap
+      const spd = Math.sqrt(this.vx * this.vx + this.vy * this.vy);
+      if (spd > 8) { this.vx = this.vx / spd * 8; this.vy = this.vy / spd * 8; }
+      this.x += this.vx;
+      this.y += this.vy;
+      // bounce
+      const p = this.r * 0.4;
+      if (this.x < p)     { this.x = p;     this.vx =  Math.abs(this.vx) * 0.7; }
+      if (this.x > W - p) { this.x = W - p; this.vx = -Math.abs(this.vx) * 0.7; }
+      if (this.y < p)     { this.y = p;     this.vy =  Math.abs(this.vy) * 0.7; }
+      if (this.y > H - p) { this.y = H - p; this.vy = -Math.abs(this.vy) * 0.7; }
+    }
+  }
+
+  function resize () {
+    W  = scene.offsetWidth;
+    H  = scene.offsetHeight;
+    SW = Math.ceil(W * SCALE);
+    SH = Math.ceil(H * SCALE);
+    canvas.width  = SW;  canvas.height  = SH;
+    invCvs.width  = SW;  invCvs.height  = SH;
+    canvas.style.width  = W + 'px';  canvas.style.height  = H + 'px';
+    invCvs.style.width  = W + 'px';  invCvs.style.height  = H + 'px';
+  }
+
+  function initBlobs () {
+    blobs.length = 0;
+    for (let i = 0; i < NUM; i++) blobs.push(new Blob());
+  }
+
+  // Pre-allocate image data buffers
+  let imgData, invData;
+
+  function render () {
+    if (!SW || !SH) { requestAnimationFrame(render); return; }
+
+    imgData = ctx.createImageData(SW, SH);
+    invData = invCtx.createImageData(SW, SH);
+    const px  = imgData.data;
+    const ipx = invData.data;
+
+    for (let y = 0; y < SH; y++) {
+      for (let x = 0; x < SW; x++) {
+        const wx = x / SCALE;
+        const wy = y / SCALE;
+        let sum = 0;
+        for (let k = 0; k < blobs.length; k++) {
+          const b  = blobs[k];
+          const dx = wx - b.x;
+          const dy = wy - b.y;
+          const d2 = dx * dx + dy * dy || 0.001;
+          sum += (b.r * b.r) / d2;
+        }
+
+        if (sum >= THRESH) {
+          const idx = (y * SW + x) * 4;
+          // shimmer: higher field = brighter highlight
+          const sh  = Math.min(sum / 2.5, 1);
+          // base silver-chrome palette with specular highlight
+          const hi  = Math.round(160 + sh * 95);   // R
+          const hg  = Math.round(168 + sh * 87);   // G
+          const hb  = Math.round(180 + sh * 75);   // B
+          // smooth edge via logistic curve near threshold
+          const edge = Math.min((sum - THRESH) * 8, 1);
+          const a   = Math.round(edge * 215);
+
+          px[idx]   = hi;
+          px[idx+1] = hg;
+          px[idx+2] = hb;
+          px[idx+3] = a;
+
+          // inversion canvas: white mask (mix-blend-mode: difference inverts below)
+          ipx[idx]   = 255;
+          ipx[idx+1] = 255;
+          ipx[idx+2] = 255;
+          ipx[idx+3] = Math.round(edge * 200);
+        }
+      }
+    }
+
+    ctx.putImageData(imgData, 0, 0);
+    invCtx.putImageData(invData, 0, 0);
+    blobs.forEach(b => b.update());
+    requestAnimationFrame(render);
+  }
+
+  // Track mouse from the hero section for accurate coords
+  const hero = document.querySelector('.hero');
+  hero.addEventListener('mousemove', e => {
+    const r  = hero.getBoundingClientRect();
+    mouse.x  = e.clientX - r.left;
+    mouse.y  = e.clientY - r.top;
+    scene.classList.add('active');
+  }, { passive: true });
+  hero.addEventListener('mouseleave', () => {
+    mouse.x = -9999;
+    mouse.y = -9999;
+    scene.classList.remove('active');
+  });
+
+  resize();
+  initBlobs();
+  render();
+  window.addEventListener('resize', () => { resize(); initBlobs(); });
+})();
+
+/* ============================================
    ACTIVE NAV LINK ON SCROLL
    ============================================ */
 (function () {

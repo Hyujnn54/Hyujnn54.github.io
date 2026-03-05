@@ -139,9 +139,34 @@ img { max-width: 100%; display: block; }
   justify-content: center;
   text-align: center;
   padding: calc(var(--nav-height) + 2rem) 1.5rem 4rem;
+  overflow: hidden;
 }
 
-.hero-content { max-width: 700px; }
+/* Mercury Liquid Effect */
+.mercury-scene {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+.mercury-scene.active { pointer-events: auto; }
+#mercury-canvas,
+#mercury-inv-canvas {
+  position: absolute;
+  top: 0; left: 0;
+  image-rendering: auto;
+}
+#mercury-inv-canvas {
+  mix-blend-mode: difference;
+  opacity: 0.45;
+}
+.hero-content {
+  position: relative;
+  z-index: 2;
+  pointer-events: auto;
+  max-width: 700px;
+}
 
 .hero-avatar-wrap {
   position: relative;
