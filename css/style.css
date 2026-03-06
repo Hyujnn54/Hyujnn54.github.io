@@ -827,6 +827,14 @@ img { max-width: 100%; display: block; }
   color: var(--text-muted);
   line-height: 1.65;
 }
+.tl-content a {
+  color: var(--text);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-color: rgba(255,255,255,0.3);
+  transition: text-decoration-color 0.2s;
+}
+.tl-content a:hover { text-decoration-color: var(--accent); }
 
 /* ============================================
    CURRENTLY BUILDING SECTION (B)
