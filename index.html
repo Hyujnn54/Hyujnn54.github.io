@@ -6,7 +6,7 @@
   <title>Hyujnn | Portfolio</title>
   <meta name="description" content="Computer Science Student | Cloud & Cybersecurity Enthusiast" />
   <link rel="icon" href="https://avatars.githubusercontent.com/u/140203430?v=4" />
-  <link rel="stylesheet" href="css/style.css?v=21" />
+  <link rel="stylesheet" href="css/style.css?v=22" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
@@ -236,11 +236,27 @@
   <section class="section section-alt" id="repos">
     <div class="container">
       <h2 class="section-title"><span class="section-num">05.</span> Repositories</h2>
-      <div class="repos-filter reveal">
-        <button class="filter-btn active" data-filter="all">All</button>
-        <button class="filter-btn" data-filter="Python">Python</button>
-        <button class="filter-btn" data-filter="Java">Java</button>
-        <button class="filter-btn" data-filter="C">C</button>
+      <div class="repos-controls reveal">
+        <div class="repos-filter">
+          <button class="filter-btn active" data-filter="all">All</button>
+          <button class="filter-btn" data-filter="Python">Python</button>
+          <button class="filter-btn" data-filter="Java">Java</button>
+          <button class="filter-btn" data-filter="C">C</button>
+          <button class="filter-btn" data-filter="C++">C++</button>
+          <button class="filter-btn" data-filter="JavaScript">JavaScript</button>
+        </div>
+        <div class="repos-toolbar">
+          <div class="repos-search-wrap">
+            <svg viewBox="0 0 16 16" width="14" height="14" fill="currentColor"><path d="M10.68 11.74a6 6 0 0 1-7.922-8.982 6 6 0 0 1 8.982 7.922l3.04 3.04a.749.749 0 0 1-.326 1.275.749.749 0 0 1-.734-.215ZM11.5 7a4.499 4.499 0 1 0-8.997 0A4.499 4.499 0 0 0 11.5 7Z"/></svg>
+            <input type="text" id="repos-search" placeholder="Search repos…" autocomplete="off" spellcheck="false" />
+          </div>
+          <select id="repos-sort" class="repos-sort-select">
+            <option value="updated">↓ Updated</option>
+            <option value="stars">★ Stars</option>
+            <option value="forks">⑂ Forks</option>
+            <option value="az">A → Z</option>
+          </select>
+        </div>
       </div>
       <div class="repos-grid" id="repos-grid">
         <div class="repos-loading">
@@ -286,6 +302,6 @@
     <p class="footer-sub">⭐ Always learning. Always building.</p>
   </footer>
 
-  <script src="js/main.js?v=21"></script>
+  <script src="js/main.js?v=22"></script>
 </body>
 </html>

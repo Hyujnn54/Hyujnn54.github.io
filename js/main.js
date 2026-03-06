@@ -420,25 +420,46 @@
     return card;
   }
 
-  function renderRepos(lang) {
+  let currentFilter = 'all';
+  let currentSearch = '';
+  let currentSort   = 'updated';
+
+  function applyFilters() {
+    const search = currentSearch.toLowerCase().trim();
     grid.innerHTML = '';
-    const filtered = lang === 'all'
+
+    let filtered = currentFilter === 'all'
       ? allRepos
-      : allRepos.filter(r => (r.language || '') === lang || (r.language || '').startsWith(lang));
+      : allRepos.filter(r => (r.language || '') === currentFilter);
+
+    if (search) {
+      filtered = filtered.filter(r =>
+        r.name.toLowerCase().includes(search) ||
+        (r.description || '').toLowerCase().includes(search) ||
+        (r.topics || []).some(t => t.toLowerCase().includes(search))
+      );
+    }
+
+    filtered = [...filtered].sort((a, b) => {
+      if (currentSort === 'stars') return b.stargazers_count - a.stargazers_count;
+      if (currentSort === 'forks') return b.forks_count - a.forks_count;
+      if (currentSort === 'az')    return a.name.localeCompare(b.name);
+      const ta = a.updated_at ? new Date(a.updated_at) : new Date(0);
+      const tb = b.updated_at ? new Date(b.updated_at) : new Date(0);
+      return tb - ta;
+    });
 
     if (!filtered.length) {
-      grid.innerHTML = '<p style="color:var(--text-muted);padding:2rem;font-family:var(--font-mono);">No repositories found for this filter.</p>';
+      grid.innerHTML = '<p style="color:var(--text-muted);padding:2rem;font-family:var(--font-mono);">No repositories found.</p>';
       return;
     }
 
     filtered.forEach((repo, i) => {
       const card = buildCard(repo);
       card.style.transitionDelay = `${i * 40}ms`;
-      // small timeout so opacity transition plays after paint
       setTimeout(() => card.classList.add('visible'), 30 + i * 40);
       grid.appendChild(card);
     });
-
   }
 
   async function fetchRepos() {
@@ -461,7 +482,7 @@
         ...FEATURED_EXTRA
       ];
     }
-    renderRepos('all');
+    applyFilters();
     // Let canvas know page height changed
     setTimeout(() => window.dispatchEvent(new Event('reposLoaded')), 200);
   }
@@ -470,9 +491,27 @@
     btn.addEventListener('click', () => {
       btns.forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
-      renderRepos(btn.dataset.filter);
+      currentFilter = btn.dataset.filter;
+      applyFilters();
     });
   });
+
+  const searchInput = document.getElementById('repos-search');
+  const sortSelect  = document.getElementById('repos-sort');
+
+  if (searchInput) {
+    searchInput.addEventListener('input', () => {
+      currentSearch = searchInput.value;
+      applyFilters();
+    });
+  }
+
+  if (sortSelect) {
+    sortSelect.addEventListener('change', () => {
+      currentSort = sortSelect.value;
+      applyFilters();
+    });
+  }
 
   fetchRepos();
 })();
